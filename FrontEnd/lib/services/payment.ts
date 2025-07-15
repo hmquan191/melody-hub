@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Payment service for handling MoMo payment integration
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
 
 export interface PaymentResponse {
-  success: boolean;
-  payUrl?: string;
-  message?: string;
-  error?: string;
-  verified?: boolean;
-  data?: any;
+  success: boolean
+  payUrl?: string
+  message?: string
+  error?: string
+  verified?: boolean
+  data?: any
 }
 
 /**
@@ -21,17 +22,17 @@ export const createMoMoPayment = async (amount: string): Promise<PaymentResponse
     const response = await fetch(`${API_BASE_URL}/payment/momo-payment`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ amount }),
-    });
+      body: JSON.stringify({ amount })
+    })
 
-    const data = await response.json();
-    
+    const data = await response.json()
+
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to create payment');
+      throw new Error(data.message || 'Failed to create payment')
     }
-    
+
     // Handle the new response format from the backend
     if (data.data && data.data.payUrl) {
       return {
@@ -39,18 +40,18 @@ export const createMoMoPayment = async (amount: string): Promise<PaymentResponse
         payUrl: data.data.payUrl,
         message: data.message,
         data: data.data
-      };
+      }
     }
-    
-    return data;
+
+    return data
   } catch (error) {
-    console.error('Error creating MoMo payment:', error);
+    console.error('Error creating MoMo payment:', error)
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to create payment',
-    };
+      message: error instanceof Error ? error.message : 'Failed to create payment'
+    }
   }
-};
+}
 
 /**
  * Verify a MoMo payment
@@ -63,23 +64,23 @@ export const verifyMoMoPayment = async (orderId: string, resultCode: string): Pr
     const response = await fetch(`${API_BASE_URL}/payment/momo/verify`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ orderId, resultCode }),
-    });
+      body: JSON.stringify({ orderId, resultCode })
+    })
 
-    const data = await response.json();
-    
+    const data = await response.json()
+
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to verify payment');
+      throw new Error(data.message || 'Failed to verify payment')
     }
-    
-    return data;
+
+    return data
   } catch (error) {
-    console.error('Error verifying MoMo payment:', error);
+    console.error('Error verifying MoMo payment:', error)
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to verify payment',
-    };
+      message: error instanceof Error ? error.message : 'Failed to verify payment'
+    }
   }
-}; 
+}

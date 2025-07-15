@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -14,10 +15,10 @@ export default function CheckoutSuccess() {
 
   // Get payment status from URL parameters
   // MoMo might return different parameter names depending on the version
-  const orderId = searchParams.get('orderId') || searchParams.get('orderid');
-  const resultCode = searchParams.get('resultCode') || searchParams.get('resultcode');
-  const message = searchParams.get('message') || searchParams.get('errorMessage');
-  const extraData = searchParams.get('extraData');
+  const orderId = searchParams.get('orderId') || searchParams.get('orderid')
+  const resultCode = searchParams.get('resultCode') || searchParams.get('resultcode')
+  const message = searchParams.get('message') || searchParams.get('errorMessage')
+  const extraData = searchParams.get('extraData')
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -52,9 +53,9 @@ export default function CheckoutSuccess() {
   // Clear cart after successful payment
   useEffect(() => {
     if (resultCode === '0' && verified) {
-      localStorage.removeItem('cart');
+      localStorage.removeItem('cart')
     }
-  }, [resultCode, verified]);
+  }, [resultCode, verified])
 
   if (verifying) {
     return (
