@@ -134,13 +134,14 @@ export const Navbar = () => {
 
   useEffect(() => {
     // Kiểm tra và log trạng thái từ localStorage
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true'
+    const tokenvalue = localStorage.getItem('token')
+    const loggedIn = !!tokenvalue
     console.log('Initial isLoggedIn from localStorage:', loggedIn)
     setIsLoggedIn(loggedIn)
 
     // Lắng nghe sự kiện thay đổi từ localStorage
     const handleStorageChange = () => {
-      const updatedLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
+      const updatedLoggedIn = !!localStorage.getItem('token')
       console.log('Storage changed, updated isLoggedIn:', updatedLoggedIn)
       if (updatedLoggedIn !== isLoggedIn) {
         setIsLoggedIn(updatedLoggedIn)
