@@ -2,7 +2,8 @@
 import Ecatalog from '@/components/ECatalog'
 import { ProductCard } from '@/components/ui/product-card'
 import { useEffect, useState } from 'react'
-
+import ProductCategory from '../homepage/components/ProductCategory'
+import { useSearchParams } from 'next/navigation'
 // Import các component Pagination từ Shadcn UI
 import {
   Pagination,
@@ -28,7 +29,50 @@ export default function Products() {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const itemsPerPage = 16
 
-  // elastic search dựa vào tên sản phẩm lấy từ thanh tìm ki
+  // elastic search dựa vào tên sản phẩm lấy từ thanh tìm k
+
+  // bộ lọc sidebar
+  const searchParams = useSearchParams()
+  const selectedCategory = searchParams.get('category')
+  const filterByCategory = (product: Product) => {
+    if (!product.name) return false // an toàn: nếu name undefined thì bỏ
+
+    const name = product.name.toLowerCase()
+
+    switch (selectedCategory) {
+      case 'vietnamese':
+        return /[àáảãạăằắẳẵặâầấẩẫậđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]/i.test(name)
+      case 'international':
+        return !/[àáảãạăằắẳẵặâầấẩẫậđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]/i.test(name)
+      case 'cd-dvd':
+        return name.includes('cd') || name.includes('dvd')
+      case 'vinyl':
+        return name.includes('đĩa than') || name.includes('vinyl')
+      case 'cassette':
+        return name.includes('cassette')
+      case 'merch':
+        return [
+          'áo',
+          'ví',
+          'móc khóa',
+          'tuyển tập',
+          'túi',
+          'nhật ký',
+          'sách',
+          'merch',
+          'lanyard',
+          'mũ',
+          'khẩu trang',
+          'book',
+          'phone',
+          'magazine'
+        ].some((keyword) => name.includes(keyword))
+      case 'signed':
+        return name.includes('chữ ký')
+      default:
+        return true
+    }
+  }
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -42,16 +86,20 @@ export default function Products() {
     fetchProducts()
   }, [])
 
+  // PHẦN PHÂN TRANG
   // Tính tổng số trang
-  const totalPages = Math.ceil(products.length / itemsPerPage)
+  // const totalPages = Math.ceil(products.length / itemsPerPage)
+  const [inputPage, setInputPage] = useState(currentPage)
 
   // Lấy danh sách sản phẩm cho trang hiện tại
-  const currentItems = products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const filteredProducts = products.filter(filterByCategory)
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
 
-  // Hàm xử lý khi chuyển trang
+  const currentItems = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
-    // Tùy chọn: Cuộn lên đầu trang sau khi chuyển trang để cải thiện UX
+    setInputPage(page) // đồng bộ input
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -104,66 +152,90 @@ export default function Products() {
   return (
     <div>
       <Ecatalog />
+
       <div className='container mx-auto py-8'>
-        {' '}
-        {/* Thêm container và mx-auto để căn giữa nội dung */}
         <h1 className='text-[40px] font-bold mb-8 text-left font-[MicaValo]'>OUR PRODUCTS</h1>
-        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-center'>
-          {currentItems.map((product) => (
-            <ProductCard
-              key={product._id}
-              id={product._id}
-              name={product.name}
-              price={product.price}
-              imageUrl={product.image}
-              isNew={false} // Nếu có trường phân biệt sản phẩm mới thì truyền vào
-              onAddToCart={(id) => {
-                console.log(`Added product ${id} to cart`)
-              }}
-            />
-          ))}
-        </div>
-        {/* Shadcn UI Pagination */}
-        {totalPages > 1 && ( // Chỉ hiển thị phân trang nếu có nhiều hơn 1 trang
-          <div className='flex justify-center mt-8'>
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    isActive={currentPage > 1}
-                    className='cursor-pointer'
-                  />
-                </PaginationItem>
 
-                {/* Hiển thị các số trang và dấu "..." */}
-                {getPageNumbers(currentPage, totalPages).map((page, index) => (
-                  <PaginationItem key={index}>
-                    {page === '...' ? (
-                      <PaginationEllipsis className='cursor-default' />
-                    ) : (
-                      <PaginationLink
-                        onClick={() => handlePageChange(page as number)}
-                        isActive={page === currentPage}
+        <div className='flex flex-col sm:flex-row gap-6'>
+          <ProductCategory />
+
+          <div className='flex-1'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-center'>
+              {currentItems.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  id={product._id}
+                  name={product.name}
+                  price={product.price}
+                  imageUrl={product.image}
+                  isNew={false}
+                  onAddToCart={(id) => {
+                    console.log(`Added product ${id} to cart`)
+                  }}
+                />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className='flex justify-center mt-8'>
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        isActive={currentPage > 1}
                         className='cursor-pointer'
-                      >
-                        {page}
-                      </PaginationLink>
-                    )}
-                  </PaginationItem>
-                ))}
+                      />
+                    </PaginationItem>
 
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    isActive={currentPage < totalPages}
-                    className='cursor-pointer'
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+                    {getPageNumbers(currentPage, totalPages).map((page, index) => (
+                      <PaginationItem key={index}>
+                        {page === '...' ? (
+                          <PaginationEllipsis className='cursor-default' />
+                        ) : (
+                          <PaginationLink
+                            onClick={() => handlePageChange(page as number)}
+                            isActive={page === currentPage}
+                            className='cursor-pointer'
+                          >
+                            {page}
+                          </PaginationLink>
+                        )}
+                      </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        isActive={currentPage < totalPages}
+                        className='cursor-pointer'
+                      />
+                    </PaginationItem>
+
+                    {/* Ô nhập trang */}
+                    <div className='flex items-center gap-2 ml-4'>
+                      <span className='text-sm'>Go to</span>
+                      <input
+                        type='number'
+                        min={1}
+                        max={totalPages}
+                        value={inputPage}
+                        onChange={(e) => setInputPage(Number(e.target.value))}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && inputPage >= 1 && inputPage <= totalPages) {
+                            handlePageChange(inputPage)
+                          }
+                        }}
+                        className='w-16 px-2 py-1 border rounded text-sm text-center'
+                      />
+                      <span className='text-sm'>/ {totalPages}</span>
+                    </div>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
