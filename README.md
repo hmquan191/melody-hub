@@ -1,6 +1,9 @@
 # Melody Hub – Full-stack E‑commerce
+Melody hub is a E-commerce platform for vinyl lovers
 
-Monorepo for Melody Hub, including Backend (Node/Express + MongoDB) and Frontend (Next.js).
+
+## Product page
+<img width="1412" height="923" alt="image" src="https://github.com/user-attachments/assets/0d958d91-06ba-4bef-a304-c46f4d93a4ed" />
 
 ## Directory Structure
 ```
@@ -9,12 +12,19 @@ melody-hub/
   FrontEnd/    # Next.js app (shop, admin dashboard, scraper UI)
   README.md    # This overview
 ```
+Monorepo for Melody Hub, including Backend (Node/Express + MongoDB) and Frontend (Next.js).
 
 ## Prerequisites
 - Node.js 18+
 - MongoDB running locally or in the cloud
 - (Optional) Redis
 - (Optional) Stripe + MoMo accounts for payments
+
+## Deployment
+https://melodyhub1.vercel.app/
+
+## Demo video
+https://youtu.be/ek5Jcc2GEdU?si=5Q2p7FWoYM8_rnEd
 
 ## Quick Start
 1) Backend
